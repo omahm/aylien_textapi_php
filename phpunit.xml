@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit colors="true" bootstrap="tests/bootstrap.php"
+  convertNoticesToExceptions = "true" convertWarningsToExceptions = "true" convertErrorsToExceptions = "true">
+  <testsuites>
+    <testsuite name="Text API endpoints">
+      <directory>tests/endpoints</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>
