@@ -17,6 +17,9 @@
 
 namespace AYLIEN;
 
+require_once 'IO/Abstract.php';
+require_once 'IO/Curl.php';
+
 /**
  * The AYLIEN TextAPI Client
  */
