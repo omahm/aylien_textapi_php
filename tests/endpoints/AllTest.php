@@ -98,6 +98,18 @@ class AllTest extends BaseTest
     $this->assertTrue($io->getIsHttps());
   }
 
+  public function testDefaultConstructorUsesHttps()
+  {
+    $textAPI = new AYLIEN\TextAPI("test", "test");
+    $this->assertTrue($textAPI->getIo()->getIsHttps());
+  }
+
+  public function testDontUseHttpsInConstructorHasEffect()
+  {
+    $textAPI = new AYLIEN\TextAPI("test", "test", false);
+    $this->assertFalse($textAPI->getIo()->getIsHttps());
+  }
+
   public function testIoUrlBuilder()
   {
     $io = new AYLIEN\TextAPI\IO_Curl();

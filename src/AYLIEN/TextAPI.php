@@ -74,6 +74,7 @@ class TextAPI
   {
     if (!isset($this->io)) {
       $this->io = new TextAPI\IO_Curl();
+      $this->io->setIsHttps($this->use_https);
     }
 
     return $this->io;
