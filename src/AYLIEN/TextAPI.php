@@ -305,6 +305,31 @@ class TextAPI
     return $response;
   }
 
+  /**
+   * Returns client's rate limits
+   *
+   * <ul>
+   *    <li>['limit']       <i><u>int</u></i> Plan's limit</li>
+   *    <li>['reset']       <i><u>int</u></i> Unix UTC timestamp indicating
+   *    the exact time remaining resets</li>
+   *    <li>['remaining']   <i><u>int</u></i> Remaining calls</li>
+   * </ul>
+   *
+   * @return    array (See above)
+   */
+  public function getRateLimits()
+  {
+    $headers = $this->getIo()->getLastResponseHeaders();
+    $rateLimits = array();
+    foreach ($headers as $key => $value) {
+      if (stripos($key, 'X-RateLimit-') === 0) {
+        $rateLimits[strtolower(str_replace('X-RateLimit-', '', $key))] = intval($value);
+      }
+    }
+
+    return $rateLimits;
+  }
+
   protected function buildHttpRequest($endpoint, $parameters) {
     $credentials = array(
       'X-AYLIEN-TextAPI-Application-ID: ' . $this->application_id,

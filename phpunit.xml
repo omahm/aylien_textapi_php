@@ -5,5 +5,8 @@
     <testsuite name="Text API endpoints">
       <directory>tests/endpoints</directory>
     </testsuite>
+    <testsuite name="Text API IO drivers">
+      <directory>tests/io</directory>
+    </testsuite>
   </testsuites>
 </phpunit>

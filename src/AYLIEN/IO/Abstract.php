@@ -62,9 +62,11 @@ abstract class IO_Abstract
     return $this->parameters;
   }
 
-  public function getHeaders() {
+  public function getRequestHeaders() {
     return $this->headers;
   }
 
   abstract public function execute();
+
+  abstract public function getLastResponseHeaders();
 }

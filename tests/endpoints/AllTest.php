@@ -68,7 +68,6 @@ class AllTest extends BaseTest
     }
   }
 
-
   /**
    * @expectedException \UnexpectedValueException
    */
@@ -83,21 +82,6 @@ class AllTest extends BaseTest
     }
   }
 
-  public function testCurlIoAddsAcceptAndContentTypeHeaders()
-  {
-    $io = new AYLIEN\TextAPI\IO_Curl();
-    $this->assertContains('Accept: application/json',
-      $io->getHeaders());
-    $this->assertContains('Content-Type: application/x-www-form-urlencoded',
-      $io->getHeaders());
-  }
-
-  public function testIoIsHttpsByDefault()
-  {
-    $io = new AYLIEN\TextAPI\IO_Curl();
-    $this->assertTrue($io->getIsHttps());
-  }
-
   public function testDefaultConstructorUsesHttps()
   {
     $textAPI = new AYLIEN\TextAPI("test", "test");
@@ -110,19 +94,22 @@ class AllTest extends BaseTest
     $this->assertFalse($textAPI->getIo()->getIsHttps());
   }
 
-  public function testIoUrlBuilder()
-  {
-    $io = new AYLIEN\TextAPI\IO_Curl();
-    $io->setEndpoint('sentiment');
-    $this->assertStringStartsWith('https://', $io->getUrl());
-    $this->assertStringEndsWith('sentiment', $io->getUrl());
-    $io->setIsHttps(false);
-    $this->assertStringStartsWith('http://', $io->getUrl());
-  }
-
   public function testGetIoDoesntReturnNull()
   {
     $client = $this->getClient();
     $this->assertInstanceOf('AYLIEN\TextAPI\IO_Abstract', $client->getIo());
+  }
+
+  public function testRateLimits()
+  {
+    $client = $this->getClient();
+    $io = new AYLIEN\TextAPI\IO_Curl();
+    $dir = __DIR__ . '/../fixtures/';
+    $io->setLastResponseRawHeaders(file_get_contents($dir . 'curl_io_ratelimit_headers'));
+    $client->setIo($io);
+    $rateLimits = $client->getRateLimits();
+    $this->assertEquals($rateLimits['limit'], 1000);
+    $this->assertEquals($rateLimits['reset'], 1420761600);
+    $this->assertEquals($rateLimits['remaining'], 953);
   }
 }

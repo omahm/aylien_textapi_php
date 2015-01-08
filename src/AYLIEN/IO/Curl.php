@@ -19,29 +19,37 @@ namespace AYLIEN\TextAPI;
 
 class IO_Curl extends IO_Abstract
 {
+  private $lastResponseRawHeaders;
+
   public function execute()
   {
     $ch = curl_init($this->getUrl());
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $this->getHeaders());
-    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($this->getParameters()));
+    curl_setopt($ch, CURLOPT_POST,              true);
+    curl_setopt($ch, CURLOPT_HEADER,            true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER,        $this->getRequestHeaders());
+    curl_setopt($ch, CURLOPT_POSTFIELDS,        http_build_query($this->getParameters()));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER,    true);
+
     $response = curl_exec($ch);
+    $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+    $this->lastResponseRawHeaders = substr($response, 0, $header_size);
+    $body = substr($response, $header_size);
+
     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
     if ($http_code >= 300) {
-      $decoded_error = json_decode($response);
+      $decoded_error = json_decode($body);
       if ($decoded_error && isset($decoded_error->error)) {
         throw new \UnexpectedValueException($decoded_error->error);
-      } else {
-        throw new \UnexpectedValueException($response);
       }
+
+      throw new \UnexpectedValueException($body);
     }
 
-    return $response;
+    return $body;
   }
 
-  public function getHeaders()
+  public function getRequestHeaders()
   {
     return array_merge(
       array(
@@ -50,5 +58,34 @@ class IO_Curl extends IO_Abstract
       ),
       $this->headers
     );
+  }
+
+  public function setLastResponseRawHeaders($headers)
+  {
+    $this->lastResponseRawHeaders = $headers;
+  }
+
+  public function getLastResponseHeaders()
+  {
+    $headers = array_map(function($h) {
+      $h = trim($h);
+      if (stripos($h, 'HTTP/1.') === false) {
+        $parts = explode(':', $h, 2);
+        if (count($parts) == 2) {
+          return array($parts[0], trim($parts[1]));
+        }
+      }
+    }, split("\n", $this->lastResponseRawHeaders));
+
+    $headers = array_filter($headers, function($h) {
+      return strlen($h[0]);
+    });
+
+    $parsedHeaders = array();
+    foreach ($headers as $header) {
+      $parsedHeaders[$header[0]] = $header[1];
+    }
+
+    return $parsedHeaders;
   }
 }
