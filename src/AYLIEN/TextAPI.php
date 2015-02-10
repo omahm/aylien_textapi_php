@@ -46,6 +46,11 @@ class TextAPI
   private $io;
 
   /**
+   * @var   string  Client Version
+   */
+  private $version = '0.2.0';
+
+  /**
    * Constructs the AYLIEN TextAPI client.
    *
    * @param $application_id     Application ID
@@ -257,7 +262,7 @@ class TextAPI
    *    Number of entries in response. Max 100</li>
    * </ul>
    *
-   * @param array   $input  (See above)
+   * @param array   $params (See above)
    */
   public function Related($params)
   {
@@ -291,7 +296,7 @@ class TextAPI
    *    sentences to be returned in default mode (not applicable to shor mode)
    * </ul>
    *
-   * @param array   $input  (See above)
+   * @param array   $params (See above)
    */
   public function Summarize($params)
   {
@@ -300,6 +305,55 @@ class TextAPI
       throw new \BadMethodCallException("You must either provide url or a pair of text and title");
     }
     $httpRequest = $this->buildHttpRequest('summarize', $params);
+    $response = $this->executeRequest($httpRequest);
+
+    return $response;
+  }
+
+
+  /**
+   * Extracts microformats
+   *
+   * <ul>
+   *    <li>['url'] <i><u>string</u></i> URL</li>
+   * </ul>
+   *
+   * @param array   $params (See above)
+   */
+  public function Microformats($params)
+  {
+    $params = $this->normalizeInput($params);
+    if (empty($params['url'])) {
+      throw new \BadMethodCallException("You must provide a url");
+    }
+    $httpRequest = $this->buildHttpRequest('microformats', $params);
+    $response = $this->executeRequest($httpRequest);
+
+    return $response;
+  }
+
+  /**
+   * Picks the most semantically relevant class label or tag.
+   *
+   * <ul>
+   *    <li>['url']                 <i><u>string</u></i> URL</li>
+   *    <li>['text']                <i><u>string</u></i> Text</li>
+   *    <li>['class']               <i><u>array</u></i> List of classes to
+   *        classify into</li>
+   *    <li>['number_of_concepts']  <i><u>integer</u></i> Specify the number
+   *        of concepts used to measure the semantic similarity between two
+   *        words.</li>
+   * </ul>
+   *
+   * @param array   $params (See above)
+   */
+  public function UnsupervisedClassify($params)
+  {
+    $params = $this->normalizeInput($params);
+    if (empty($params['text']) && empty($params['url'])) {
+      throw new \BadMethodCallException("You must either provide url or text");
+    }
+    $httpRequest = $this->buildHttpRequest('classify/unsupervised', $params);
     $response = $this->executeRequest($httpRequest);
 
     return $response;
@@ -333,7 +387,8 @@ class TextAPI
   protected function buildHttpRequest($endpoint, $parameters) {
     $credentials = array(
       'X-AYLIEN-TextAPI-Application-ID: ' . $this->application_id,
-      'X-AYLIEN-TextAPI-Application-Key: ' . $this->application_key
+      'X-AYLIEN-TextAPI-Application-Key: ' . $this->application_key,
+      'User-Agent: Aylien Text API PHP ' . $this->version
     );
     $io = $this->getIo();
     $io->setEndpoint($endpoint);
