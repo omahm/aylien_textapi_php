@@ -333,7 +333,7 @@ class TextAPI
   }
 
   /**
-   * Picks the most semantically relevant class label or tag.
+   * Picks the most semantically relevant class label or tag
    *
    * <ul>
    *    <li>['url']                 <i><u>string</u></i> URL</li>
@@ -354,6 +354,28 @@ class TextAPI
       throw new \BadMethodCallException("You must either provide url or text");
     }
     $httpRequest = $this->buildHttpRequest('classify/unsupervised', $params);
+    $response = $this->executeRequest($httpRequest);
+
+    return $response;
+  }
+
+
+  /**
+   * Assigns relevant tags to an image
+   *
+   * <ul>
+   *    <li>['url'] <i><u>string</u></i> URL</li>
+   * </ul>
+   *
+   * @param array   $param (See above)
+   */
+  public function ImageTags($params)
+  {
+    $params = $this->normalizeInput($params);
+    if (empty($params['url'])) {
+      throw new \BadMethodCallException("You must provide a url");
+    }
+    $httpRequest = $this->buildHttpRequest('image-tags', $params);
     $response = $this->executeRequest($httpRequest);
 
     return $response;
