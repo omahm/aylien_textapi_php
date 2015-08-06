@@ -310,7 +310,6 @@ class TextAPI
     return $response;
   }
 
-
   /**
    * Extracts microformats
    *
@@ -359,7 +358,6 @@ class TextAPI
     return $response;
   }
 
-
   /**
    * Assigns relevant tags to an image
    *
@@ -376,6 +374,29 @@ class TextAPI
       throw new \BadMethodCallException("You must provide a url");
     }
     $httpRequest = $this->buildHttpRequest('image-tags', $params);
+    $response = $this->executeRequest($httpRequest);
+
+    return $response;
+  }
+
+  /**
+   * Runs multiple analysis operations in one API call
+   *
+   * <ul>
+   *    <li>['url']         <i><u>string</u></i> URL</li>
+   *    <li>['text']        <i><u>string</u></i> Text</li>
+   *    <li>['endpoint']    <i><u>array</u></i> List of endpoints to call
+   * </ul>
+   *
+   * @param array   $params (See above)
+   */
+  public function Combined($params)
+  {
+    $params = $this->normalizeInput($params);
+    if (empty($params['text']) && empty($params['url'])) {
+      throw new \BadMethodCallException("You must either provide url or text");
+    }
+    $httpRequest = $this->buildHttpRequest('combined', $params);
     $response = $this->executeRequest($httpRequest);
 
     return $response;
