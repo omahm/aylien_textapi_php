@@ -48,7 +48,7 @@ class TextAPI
   /**
    * @var   string  Client Version
    */
-  private $version = '0.2.0';
+  private $version = '0.5.0';
 
   /**
    * Constructs the AYLIEN TextAPI client.
@@ -154,6 +154,35 @@ class TextAPI
       throw new \BadMethodCallException("You must either provide url or text");
     }
     $httpRequest = $this->buildHttpRequest('classify', $params);
+    $response = $this->executeRequest($httpRequest);
+
+    return $response;
+  }
+
+  /**
+   * Classifies a body of text according to the specified taxonomy.
+   *
+   * <ul>
+   *    <li>['url']         <i><u>string</u></i> URL</i>
+   *    <li>['text']        <i><u>string</u></i> Text</i>
+   *    <li>['language']    <i><u>string</u></i> Language</i>
+   *    <li>['taxonomy']    <i><u>string</u></i> Taxonomy</i>
+   * </ul>
+   *
+   * @param array   $params (See above)
+   */
+  public function ClassifyByTaxonomy($params)
+  {
+    $params = $this->normalizeInput($params);
+    if (empty($params['text']) && empty($params['url'])) {
+      throw new \BadMethodCallException("You must either provide url or text");
+    }
+    if (empty($params['taxonomy'])) {
+      throw new \BadMethodCallException("You must specify the taxonomy");
+    }
+    $taxonomy = $params['taxonomy'];
+    unset($params['taxonomy']);
+    $httpRequest = $this->buildHttpRequest('classify/' . $taxonomy, $params);
     $response = $this->executeRequest($httpRequest);
 
     return $response;
