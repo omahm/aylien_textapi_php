@@ -29,7 +29,7 @@ class IO_Curl extends IO_Abstract
     curl_setopt($ch, CURLOPT_HTTPHEADER,        $this->getRequestHeaders());
     curl_setopt($ch, CURLOPT_RETURNTRANSFER,    true);
     curl_setopt($ch, CURLOPT_POSTFIELDS,
-      preg_replace("/%5B[0-9]+%5D=/i", "=", http_build_query($this->getParameters())));
+    preg_replace("/%5B[0-9]+%5D=/i", "=", http_build_query($this->getParameters())));
 
     $response = curl_exec($ch);
     $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
@@ -76,7 +76,7 @@ class IO_Curl extends IO_Abstract
           return array($parts[0], trim($parts[1]));
         }
       }
-    }, split("\n", $this->lastResponseRawHeaders));
+    }, explode("\n", $this->lastResponseRawHeaders));
 
     $headers = array_filter($headers, function($h) {
       return strlen($h[0]);
