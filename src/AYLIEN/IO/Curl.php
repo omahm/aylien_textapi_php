@@ -47,7 +47,18 @@ class IO_Curl extends IO_Abstract
       throw new \UnexpectedValueException($body);
     }
 
-    return $body;
+    preg_match_all('/(X-RateLimit-\w+):\s{1}(\d+)/', $response, $rates_data, PREG_SET_ORDER);
+
+    $rates = array();
+    foreach ($rates_data as $key => $value) {
+      $rates[substr($value[1],12)] = $value[2];
+    }
+
+    $data = json_decode($body, true);
+    $data['rateLimits'] = $rates;
+    $data = json_encode($data);
+
+    return $data;
   }
 
   public function getRequestHeaders()
